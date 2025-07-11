@@ -2,8 +2,7 @@
 import mysql.connector
 import os
 from dotenv import load_dotenv
-from processedata import df
-from processedata import Rain_df
+from processedata import Crop_df,Rain_df
 from sqlalchemy import create_engine
 
 # Load environment variables from .env file
@@ -49,7 +48,7 @@ engine = create_engine(connection_string)
 
 # push the tables to the database
 try:
-    df.to_sql(
+    Crop_df.to_sql(
         name=T1,
         con=engine,
         if_exists='replace',

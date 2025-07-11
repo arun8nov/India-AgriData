@@ -4,24 +4,28 @@ import pandas as pd
 # Read and process India Rainfall data
 Rain_df = pd.read_csv('IndiaRainFall.csv',index_col=0)
 Rain_df = Rain_df[['SUBDIVISION','Latitude','Longitude','YEAR','ANNUAL']].reset_index(drop=True)
-Rain_df.columns = ['State Name','Lat','Long','Year','Annual Rainfall(mm)']
+Rain_df.columns = ['State_Name','Lat','Long','Year','Annual_Rainfall(mm)']
 
 
 # Load the dataset from the provided URL
 url = 'https://docs.google.com/spreadsheets/d/1PHf2rFB53qUu7j8-r4qcHQdrhvxOyiyhyMWIY-nb_m8/export?format=csv&gid=321359364'
-df = pd.read_csv(url)
+Crop_df = pd.read_csv(url)
 
 # Drop duplicate rows based on all columns
-df.drop_duplicates(inplace=True)
+Crop_df.drop_duplicates(inplace=True)
 
 # change float64 columns to round to 2 decimal places
-for col in df.select_dtypes(include=['float64']).columns:
-    df[col] = df[col].round(2)
+for col in Crop_df.select_dtypes(include=['float64']).columns:
+    Crop_df[col] = Crop_df[col].round(2)
 
 # Fill NaN values with '0' in all columns
-df.fillna('0', inplace=True)
+Crop_df.fillna('0', inplace=True)
 
-df.to_csv('IndiaCropData.csv', index=False)
+# Rename columns to have underscores between words
+Crop_df.columns = [i.replace(' ','_') for i in Crop_df.columns]
+
+# Save the processed data to a CSV file
+Crop_df.to_csv('IndiaCropData.csv', index=False)
 
 Rain_df.to_csv('IndiaRainFallData.csv', index=False)
 
