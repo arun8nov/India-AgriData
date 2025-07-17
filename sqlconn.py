@@ -2,7 +2,7 @@
 import mysql.connector
 import os
 from dotenv import load_dotenv
-from processedata import Crop_df,Rain_df
+from processedata import Crop_df,Rain_df,Temp_df
 from sqlalchemy import create_engine
 
 # Load environment variables from .env file
@@ -41,6 +41,7 @@ else:
 
 T1 = 'IndiaCropData'
 T2 = "IndiaRainFallData"
+T3 = "IndianTempData"
 
 # connect mysql using sqlalchemy
 connection_string = f'mysql+pymysql://{db_user}:{db_password}@{db_host}/{db_name}'
@@ -60,7 +61,13 @@ try:
         if_exists='replace',
         index=False
     )
-    print(f"Successfully pushed DataFrames to the database tables named as {T1},{T2} .")
+    Temp_df.to_sql(
+        name=T3,
+        con=engine,
+        if_exists='replace',
+        index=False
+    )
+    print(f"Successfully pushed DataFrames to the database tables named as {T1},{T2},{T3} .")
 
 except Exception as e:
     print(f"An error occurred: {e}")

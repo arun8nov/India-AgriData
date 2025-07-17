@@ -5,7 +5,13 @@ import pandas as pd
 Rain_df = pd.read_csv('IndiaRainFall.csv',index_col=0)
 Rain_df = Rain_df[['SUBDIVISION','Latitude','Longitude','YEAR','ANNUAL']].reset_index(drop=True)
 Rain_df.columns = ['State_Name','Lat','Long','Year','Annual_Rainfall(mm)']
+Rain_df = Rain_df.groupby('Year')['Annual_Rainfall(mm)'].mean().reset_index()
+Rain_df['Annual_Rainfall(mm)'] = Rain_df['Annual_Rainfall(mm)'].round(2)
 
+# Read and process India Temprature data
+Temp_df = pd.read_csv('Indiatemp.csv')
+Temp_df = Temp_df[['YEAR','ANNUAL']]
+Temp_df.columns = ['Year','Annual Temp deg C']
 
 # Load the dataset from the provided URL
 url = 'https://docs.google.com/spreadsheets/d/1PHf2rFB53qUu7j8-r4qcHQdrhvxOyiyhyMWIY-nb_m8/export?format=csv&gid=321359364'
@@ -29,4 +35,7 @@ Crop_df.to_csv('IndiaCropData.csv', index=False)
 
 Rain_df.to_csv('IndiaRainFallData.csv', index=False)
 
-print("India Crop Data and India Rain Fall Data  Proceed Sucessfully")
+Temp_df.to_csv('IndiaTempData.csv', index = False)
+
+
+print("India Crop Data, India Temprature Data and India Rain Fall Data  Proceed Sucessfully")
