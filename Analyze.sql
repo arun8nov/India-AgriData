@@ -10,7 +10,8 @@ AS(
         `State_Name`,
         `RICE_PRODUCTION_(1000_tons)`,
         RANK() OVER(PARTITION BY `Year` ORDER BY `RICE_PRODUCTION_(1000_tons)` DESC) AS RP_Rank
-    FROM indiacropdata)
+    FROM indiacropdata
+    )
 SELECT * FROM  Rank_Rice_Production
 WHERE RP_Rank <=3
 
@@ -122,28 +123,20 @@ ORDER BY `Year`
 --8.Total Area Cultivated for Oilseeds in Each State
 
 SELECT 
-    `Year`,
     `State_Name`,
     ROUND(SUM(`OILSEEDS_AREA_(1000_ha)`),2) AS Total_Area_Cultivated
 FROM indiacropdata
-GROUP BY `Year`,`State_Name`
-ORDER BY `Year`
+GROUP BY `State_Name`
+ORDER BY ROUND(SUM(`OILSEEDS_AREA_(1000_ha)`),2) DESC
 
 --9.Districts with the Highest Rice Yield
-WITH Rank_Rice_Yeild
-AS(
 SELECT 
-    `Year`,
-    `State_Name`,
     `DIST_Name`,
-    AVG(`RICE_YIELD_(Kg_per_ha)`) AS Rice_Yeild
+    ROUND(AVG(`RICE_YIELD_(Kg_per_ha)`),2) AS Rice_Yeild
 FROM indiacropdata
-GROUP BY `Year`,`State_Name`,`DIST_Name`
-ORDER BY `Rice_Yeild` DESC)
-SELECT 
-    *,
-    RANK() OVER(PARTITION BY `Year` ORDER BY Rice_Yeild DESC)
-FROM `Rank_Rice_Yeild`
+GROUP BY `DIST_Name`
+ORDER BY AVG(`RICE_YIELD_(Kg_per_ha)`) DESC
+
 
 --10.Compare the Production of Wheat and Rice for the Top 5 States Over 10 Years
 WITH Rank_Rice_Wheat_Production
