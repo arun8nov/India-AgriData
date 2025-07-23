@@ -26,7 +26,7 @@ AS(
     FROM indiacropdata )
 SELECT * 
 FROM Rank_Yeild
-WHERE Yeild_Rank <=5
+WHERE `Year` > 2012 and Yeild_Rank < 6
 
 --3.States with the Highest Growth in Oilseed Production (5-Year Growth Rate)
 WITH Oil_Growth_Rate
@@ -53,17 +53,8 @@ GROUP BY `Year`,`State_Name`
 
 --4.District-wise Correlation Between Area and Production for Major Crops (Rice, Wheat, and Maize)
 
-SELECT 
-    `Dist_Name`,
-    `RICE_AREA_(1000_ha)`,
-    `RICE_PRODUCTION_(1000_tons)`,
-    `WHEAT_AREA_(1000_ha)`,
-    `WHEAT_PRODUCTION_(1000_tons)`,
-    `MAIZE_AREA_(1000_ha)`,
-    `MAIZE_PRODUCTION_(1000_tons)`
-FROM indiacropdata
-
 SELECT
+	`State_Name`,
     (AVG(`RICE_AREA_(1000_ha)` * `RICE_PRODUCTION_(1000_tons)`) - (AVG(`RICE_AREA_(1000_ha)`) * AVG(`RICE_PRODUCTION_(1000_tons)`))) 
     / 
     (STDDEV_SAMP(`RICE_AREA_(1000_ha)`) * STDDEV_SAMP(`RICE_PRODUCTION_(1000_tons)`)) AS rice_correlation,
@@ -76,31 +67,41 @@ SELECT
     / 
     (STDDEV_SAMP(`MAIZE_AREA_(1000_ha)`) * STDDEV_SAMP(`MAIZE_PRODUCTION_(1000_tons)`)) AS maize_correlation
 FROM
-    indiacropdata;
+    indiacropdata
+GROUP BY `State_Name`;
 
 --5.Yearly Production Growth of Cotton in Top 5 Cotton Producing States
 
-WITH Cotton_Growth_Rate
+WITH Cotton_Growth_States
 AS(
-SELECT
-    `Year`,
-    `State_Name`,
-    `COTTON_PRODUCTION_(1000_tons)`,
-    LAG(`COTTON_PRODUCTION_(1000_tons)`) OVER(PARTITION BY `State_Name` ORDER BY `State_Name`) AS Previous_Year_Prodction,
-    ROUND((
-        ((`COTTON_PRODUCTION_(1000_tons)` - LAG(`COTTON_PRODUCTION_(1000_tons)`) OVER(PARTITION BY `State_Name` ORDER BY `State_Name`) )/
-        LAG(`COTTON_PRODUCTION_(1000_tons)`) OVER(PARTITION BY `State_Name` ORDER BY `State_Name`)) *100
-    ),2) AS Growth_Rate_of_Production
-FROM indiacropdata)
-SELECT 
-    `Year`,
-    `State_Name`,
-    SUM(`COTTON_PRODUCTION_(1000_tons)`) AS COTTON_PRODUCTION,
-    SUM(Previous_Year_Prodction) AS PREVIOUS_YEAR_COTTON_SEET_PRODUCTION,
-    ROUND(AVG(Growth_Rate_of_Production),2) AS GROWTH_RATE
-FROM Cotton_Growth_Rate
-WHERE `Year` IN ( 2013,2014,2015,2016,2017)
-GROUP BY `Year`,`State_Name`
+	WITH Cotton_Growth
+		AS(
+		WITH Temp_Cotton_Growth
+		AS(
+		SELECT
+			`Year`,
+			`State_Name`,
+			`COTTON_PRODUCTION_(1000_tons)`,
+			LAG(`COTTON_PRODUCTION_(1000_tons)`) OVER(PARTITION BY `State_Name` ORDER BY `State_Name`) AS Previous_Year_Prodction,
+			ROUND((
+				((`COTTON_PRODUCTION_(1000_tons)` - LAG(`COTTON_PRODUCTION_(1000_tons)`) OVER(PARTITION BY `State_Name` ORDER BY `State_Name`) )/
+				LAG(`COTTON_PRODUCTION_(1000_tons)`) OVER(PARTITION BY `State_Name` ORDER BY `State_Name`)) *100
+			),2) AS Growth_Rate_of_Production
+		FROM indiacropdata
+		)
+		SELECT 
+			`Year`,
+			`State_Name`,
+			AVG(Growth_Rate_of_Production) Avg_Growth_Rate_of_Production
+		FROM Temp_Cotton_Growth
+		GROUP BY `Year`, `State_Name`
+	)
+	SELECT *,
+	RANK() OVER(PARTITION BY `Year` ORDER BY Avg_Growth_Rate_of_Production DESC) AS Map
+	FROM Cotton_Growth
+)
+SELECT * FROM Cotton_Growth_States 
+WHERE Map < 6
 
 --6.Districts with the Highest Groundnut Production in 2020
 SELECT
@@ -124,7 +125,7 @@ ORDER BY `Year`
 
 SELECT 
     `State_Name`,
-    ROUND(SUM(`OILSEEDS_AREA_(1000_ha)`),2) AS Total_Area_Cultivated
+    ROUND(SUM(`OILSEEDS_AREA_(1000_ha)`),2) AS Total_Area_Cultivated_1000_ha
 FROM indiacropdata
 GROUP BY `State_Name`
 ORDER BY ROUND(SUM(`OILSEEDS_AREA_(1000_ha)`),2) DESC
@@ -132,7 +133,7 @@ ORDER BY ROUND(SUM(`OILSEEDS_AREA_(1000_ha)`),2) DESC
 --9.Districts with the Highest Rice Yield
 SELECT 
     `DIST_Name`,
-    ROUND(AVG(`RICE_YIELD_(Kg_per_ha)`),2) AS Rice_Yeild
+    ROUND(AVG(`RICE_YIELD_(Kg_per_ha)`),2) AS Rice_Yeild-Kg_per_ha
 FROM indiacropdata
 GROUP BY `DIST_Name`
 ORDER BY AVG(`RICE_YIELD_(Kg_per_ha)`) DESC

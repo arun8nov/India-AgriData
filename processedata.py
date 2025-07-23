@@ -31,11 +31,11 @@ Crop_df.fillna('0', inplace=True)
 Crop_df.columns = [i.replace(' ','_') for i in Crop_df.columns]
 
 # Save the processed data to a CSV file
-Crop_df.to_csv('IndiaCropData.csv', index=False)
+Crop_df.to_csv('data\IndiaCropData.csv', index=False)
 
-Rain_df.to_csv('IndiaRainFallData.csv', index=False)
+Rain_df.to_csv('data\IndiaRainFallData.csv', index=False)
 
-Temp_df.to_csv('IndiaTempData.csv', index = False)
+Temp_df.to_csv('data\IndiaTempData.csv', index = False)
 
 
 print("India Crop Data, India Temprature Data and India Rain Fall Data  Proceed Sucessfully")
