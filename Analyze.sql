@@ -1,4 +1,4 @@
--- Active: 1752231682608@@127.0.0.1@3306@india_agri
+-- Active: 1753243093620@@127.0.0.1@3306@india_agri
 
 USE india_agri;
 
@@ -133,7 +133,7 @@ ORDER BY ROUND(SUM(`OILSEEDS_AREA_(1000_ha)`),2) DESC
 --9.Districts with the Highest Rice Yield
 SELECT 
     `DIST_Name`,
-    ROUND(AVG(`RICE_YIELD_(Kg_per_ha)`),2) AS Rice_Yeild-Kg_per_ha
+    ROUND(AVG(`RICE_YIELD_(Kg_per_ha)`),2) AS Rice_Yeild_Kg_per_ha
 FROM indiacropdata
 GROUP BY `DIST_Name`
 ORDER BY AVG(`RICE_YIELD_(Kg_per_ha)`) DESC
@@ -157,3 +157,6 @@ AS(
     FROM `Rice_Wheat_Production`)
 SELECT * FROM Rank_Rice_Wheat_Production
 WHERE Map <=5
+
+SELECT *
+FROM indiacropdata

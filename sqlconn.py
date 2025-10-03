@@ -35,7 +35,7 @@ if connection.is_connected():
     record = cursor.fetchone()
 
 else:
-    print(f"Error connecting to MySQL: {e}")
+    print("Error connecting to MySQL")
 
 # Table name assigning
 
